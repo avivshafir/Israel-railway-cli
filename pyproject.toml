@@ -1,0 +1,11 @@
+[project]
+name = "railway-cli"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+requires-python = ">=3.11"
+dependencies = [
+    "fire>=0.7.0",
+    "israel-rail-api>=0.1.2",
+    "rich>=14.0.0",
+]
