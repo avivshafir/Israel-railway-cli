@@ -93,11 +93,6 @@ railwaycli find_routes "Tel Aviv HaShalom" "Jerusalem Navon" 10
   railwaycli find_routes "Herzliya" "Beer Sheva Center" 8 --date=2025-06-01
   ```
 
-- Enable debug mode:
-  ```bash
-  railwaycli find_routes "Tel Aviv University" "Haifa Center" 16 --debug=True
-  ```
-
 ## Example Output
 
 Here's what the output looks like when searching for routes between Ra'anana West and Tel Aviv HaShalom:
@@ -187,7 +182,6 @@ For the first route found, the tool also displays a detailed station-by-station 
 - `origin`: The name of the origin station (English or Hebrew)
 - `destination`: The name of the destination station (English or Hebrew)
 - `date`: Optional date in YYYY-MM-DD format (defaults to current date)
-- `debug`: Whether to show debug information about train and route structures (true/false)
 
 ## Notes
 
@@ -195,7 +189,6 @@ For the first route found, the tool also displays a detailed station-by-station 
 - If a station name isn't recognized, it will be passed to the API as-is.
 - If no routes are found at the specified hour, an appropriate message is displayed.
 - Error messages are clearly highlighted for troubleshooting.
-- Use debug mode (`--debug=True`) to see detailed information about train objects.
 
 ## Examples
 
@@ -209,10 +202,4 @@ Search for routes from Tel Aviv University to Haifa on a specific date:
 
 ```
 railwaycli find_routes "Tel Aviv University" "Haifa Center" 16 --date=2025-05-10
-```
-
-View debug information about train objects:
-
-```
-railwaycli find_routes "Jerusalem Navon" "Herzliya" 12 --debug=True
 ```

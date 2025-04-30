@@ -18,7 +18,7 @@ class RailwayCLI:
         self.console = Console()
 
     def find_routes_by_hour(
-        self, hour, origin="Ra'anana West", destination="Tel Aviv HaShalom", debug=False
+        self, hour, origin="Ra'anana West", destination="Tel Aviv HaShalom"
     ):
         """Find train routes between two stations at a specific hour.
 
@@ -26,7 +26,6 @@ class RailwayCLI:
             hour: The hour (0-23) to search for routes
             origin: The origin station (default: Ra'anana West)
             destination: The destination station (default: Tel Aviv HaShalom)
-            debug: Whether to print debug information about the route and train objects
 
         Returns:
             Displays formatted train routes in both directions
@@ -60,10 +59,10 @@ class RailwayCLI:
             },
         }
 
-        results = self._query_routes(stations, search_date, hour, debug)
+        results = self._query_routes(stations, search_date, hour)
         self._display_results(results, stations, hour)
 
-    def _query_routes(self, stations, search_date, hour, debug=False):
+    def _query_routes(self, stations, search_date, hour):
         """Query routes between stations for a specific date and hour."""
         results = {"outbound": [], "inbound": []}
 
@@ -74,10 +73,6 @@ class RailwayCLI:
                 routes = self.schedule.query(
                     origin, destination, search_date, f"{hour:02d}:00"
                 )
-
-                # Debug the first route if requested
-                if debug and routes and result_key == "outbound":
-                    self._debug_route_structure(routes[0])
 
                 # Filter routes to only include those in the requested hour
                 for route in routes:
@@ -290,51 +285,6 @@ class RailwayCLI:
 
         return ", ".join(filter(None, train_nums))
 
-    def _debug_train_structure(self, train):
-        """Debug method to print train object attributes and their values."""
-        self.console.print(
-            "[bold yellow]Debugging train object structure:[/bold yellow]"
-        )
-        attrs = []
-
-        # Get all non-private attributes
-        for attr_name in dir(train):
-            if attr_name.startswith("_"):
-                continue
-            try:
-                attr_value = getattr(train, attr_name)
-                if (
-                    isinstance(attr_value, (str, int, float, bool))
-                    or attr_value is None
-                ):
-                    attrs.append((attr_name, attr_value))
-                elif isinstance(attr_value, dict):
-                    attrs.append(
-                        (
-                            attr_name,
-                            "Dict with keys: " + ", ".join(list(attr_value.keys())),
-                        )
-                    )
-                else:
-                    attrs.append((attr_name, f"Type: {type(attr_value).__name__}"))
-            except Exception:
-                attrs.append((attr_name, "Error accessing value"))
-
-        # Sort attributes by name for easier reading
-        attrs.sort(key=lambda x: x[0])
-
-        # Print attributes in a table
-        table = Table(
-            title="Train Object Structure", show_header=True, header_style="bold yellow"
-        )
-        table.add_column("Attribute", style="dim")
-        table.add_column("Value/Type", style="green")
-
-        for attr_name, attr_value in attrs:
-            table.add_row(attr_name, str(attr_value))
-
-        self.console.print(table)
-
     def _get_station_name(self, station_code, hebrew=True):
         """Convert station code to station name.
 
@@ -518,62 +468,7 @@ class RailwayCLI:
         except (ValueError, TypeError):
             return 0
 
-    def _debug_route_structure(self, route):
-        """Debug method to print route object attributes and their values."""
-        self.console.print(
-            "[bold magenta]Debugging route object structure:[/bold magenta]"
-        )
-        attrs = []
-
-        # Get all non-private attributes
-        for attr_name in dir(route):
-            if attr_name.startswith("_"):
-                continue
-            try:
-                attr_value = getattr(route, attr_name)
-                if (
-                    isinstance(attr_value, (str, int, float, bool))
-                    or attr_value is None
-                ):
-                    attrs.append((attr_name, attr_value))
-                elif isinstance(attr_value, dict):
-                    attrs.append(
-                        (
-                            attr_name,
-                            "Dict with keys: " + ", ".join(list(attr_value.keys())),
-                        )
-                    )
-                elif isinstance(attr_value, list):
-                    if attr_name == "trains" and attr_value:
-                        attrs.append((attr_name, f"List with {len(attr_value)} trains"))
-                        # Debug the first train
-                        if attr_value:
-                            self._debug_train_structure(attr_value[0])
-                    else:
-                        attrs.append((attr_name, f"List with {len(attr_value)} items"))
-                else:
-                    attrs.append((attr_name, f"Type: {type(attr_value).__name__}"))
-            except Exception:
-                attrs.append((attr_name, "Error accessing value"))
-
-        # Sort attributes by name for easier reading
-        attrs.sort(key=lambda x: x[0])
-
-        # Print attributes in a table
-        table = Table(
-            title="Route Object Structure",
-            show_header=True,
-            header_style="bold magenta",
-        )
-        table.add_column("Attribute", style="dim")
-        table.add_column("Value/Type", style="green")
-
-        for attr_name, attr_value in attrs:
-            table.add_row(attr_name, str(attr_value))
-
-        self.console.print(table)
-
-    def find_routes(self, origin, destination, hour, date=None, debug=False):
+    def find_routes(self, origin, destination, hour, date=None):
         """Find train routes between any two stations at a specific hour."""
         # Validate hour
         try:
@@ -616,10 +511,6 @@ class RailwayCLI:
             routes = self.schedule.query(
                 origin_he, destination_he, search_date, f"{hour:02d}:00"
             )
-
-            # Debug the first route if requested
-            if debug and routes:
-                self._debug_route_structure(routes[0])
 
             # Filter routes by the requested hour
             filtered_routes = []
