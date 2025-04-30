@@ -15,7 +15,17 @@ from .railway import RailwayCLI
 
 
 def main():
-    """Entry point for the CLI tool."""
+    """Entry point for the CLI tool.
+
+    Usage:
+        railwaycli find_routes_by_hour HOUR [ORIGIN] [DESTINATION] [--debug=DEBUG]
+        railwaycli find_routes ORIGIN DESTINATION HOUR [--date=DATE] [--debug=DEBUG]
+
+    Examples:
+        railwaycli find_routes_by_hour 9
+        railwaycli find_routes_by_hour 10 "Herzliya" "Tel Aviv University"
+        railwaycli find_routes "Tel Aviv HaShalom" "Jerusalem Navon" 10
+    """
     try:
         fire.Fire(RailwayCLI)
     except KeyboardInterrupt:

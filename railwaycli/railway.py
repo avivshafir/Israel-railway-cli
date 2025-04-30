@@ -17,8 +17,20 @@ class RailwayCLI:
         self.schedule = israelrailapi.TrainSchedule()
         self.console = Console()
 
-    def find_routes_by_hour(self, hour, debug=False):
-        """Find train routes between Ra'anana West and Tel Aviv HaShalom at a specific hour."""
+    def find_routes_by_hour(
+        self, hour, origin="Ra'anana West", destination="Tel Aviv HaShalom", debug=False
+    ):
+        """Find train routes between two stations at a specific hour.
+
+        Args:
+            hour: The hour (0-23) to search for routes
+            origin: The origin station (default: Ra'anana West)
+            destination: The destination station (default: Tel Aviv HaShalom)
+            debug: Whether to print debug information about the route and train objects
+
+        Returns:
+            Displays formatted train routes in both directions
+        """
         # Validate hour
         try:
             hour = int(hour)
@@ -41,8 +53,11 @@ class RailwayCLI:
 
         # Define the stations with both Hebrew and English names for display
         stations = {
-            "raanana_west": {"he": "רעננה מערב", "en": "Ra'anana West"},
-            "tel_aviv_hashalom": {"he": "תל אביב - השלום", "en": "Tel Aviv - HaShalom"},
+            "origin": {"he": self._get_hebrew_station_name(origin), "en": origin},
+            "destination": {
+                "he": self._get_hebrew_station_name(destination),
+                "en": destination,
+            },
         }
 
         results = self._query_routes(stations, search_date, hour, debug)
@@ -50,7 +65,7 @@ class RailwayCLI:
 
     def _query_routes(self, stations, search_date, hour, debug=False):
         """Query routes between stations for a specific date and hour."""
-        results = {"to_tel_aviv": [], "to_raanana": []}
+        results = {"outbound": [], "inbound": []}
 
         # Helper function to query and filter routes for a specific direction
         def query_direction(origin, destination, result_key):
@@ -61,7 +76,7 @@ class RailwayCLI:
                 )
 
                 # Debug the first route if requested
-                if debug and routes and result_key == "to_tel_aviv":
+                if debug and routes and result_key == "outbound":
                     self._debug_route_structure(routes[0])
 
                 # Filter routes to only include those in the requested hour
@@ -79,33 +94,33 @@ class RailwayCLI:
 
         # Query both directions
         query_direction(
-            stations["raanana_west"]["he"],
-            stations["tel_aviv_hashalom"]["he"],
-            "to_tel_aviv",
+            stations["origin"]["he"],
+            stations["destination"]["he"],
+            "outbound",
         )
         query_direction(
-            stations["tel_aviv_hashalom"]["he"],
-            stations["raanana_west"]["he"],
-            "to_raanana",
+            stations["destination"]["he"],
+            stations["origin"]["he"],
+            "inbound",
         )
 
         return results
 
     def _display_results(self, results, stations, hour):
         """Display train route results in a formatted table."""
-        # Display routes from Ra'anana West to Tel Aviv HaShalom
+        # Display routes from origin to destination
         self._display_direction_table(
-            results["to_tel_aviv"],
-            stations["raanana_west"]["en"],
-            stations["tel_aviv_hashalom"]["en"],
+            results["outbound"],
+            stations["origin"]["en"],
+            stations["destination"]["en"],
             "green",
         )
 
-        # Display routes from Tel Aviv HaShalom to Ra'anana West
+        # Display routes from destination to origin
         self._display_direction_table(
-            results["to_raanana"],
-            stations["tel_aviv_hashalom"]["en"],
-            stations["raanana_west"]["en"],
+            results["inbound"],
+            stations["destination"]["en"],
+            stations["origin"]["en"],
             "blue",
         )
 

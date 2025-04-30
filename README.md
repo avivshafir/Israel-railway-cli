@@ -4,48 +4,164 @@ A command-line interface tool for searching Israel Railways train routes.
 
 ## Installation
 
-1. Ensure you have Python 3.11+ installed
-2. Install dependencies:
-   ```
-   pip install fire israel-rail-api pytz rich
-   ```
+### Prerequisites
+
+This tool requires Python 3.11 or higher.
+
+### Using pip
+
+```bash
+# Install from GitHub
+pip install git+https://github.com/yourusername/railway-cli.git
+
+# Or, after downloading, install from the local directory
+cd railway-cli
+pip install .
+
+# For development mode (changes to code will be reflected without reinstalling)
+pip install -e .
+```
+
+### Using uv (Faster Installation)
+
+[uv](https://github.com/astral-sh/uv) is a fast Python package installer and resolver:
+
+```bash
+# Install uv if you don't have it
+pip install uv
+
+# Install railway-cli with uv
+uv pip install git+https://github.com/yourusername/railway-cli.git
+
+# Or from local directory
+cd railway-cli
+uv pip install .
+
+# For development mode
+uv pip install -e .
+```
+
+### Using pipx (Isolated Environment)
+
+[pipx](https://pypa.github.io/pipx/) installs packages in isolated environments to avoid dependency conflicts:
+
+```bash
+# Install pipx if you don't have it
+pip install pipx
+pipx ensurepath
+
+# Install railway-cli with pipx
+pipx install git+https://github.com/yourusername/railway-cli.git
+
+# Or from local directory
+cd railway-cli
+pipx install .
+```
 
 ## Usage
 
-### Find Routes by Hour (Fixed Stations)
+Once installed, you can use the `railwaycli` command from anywhere.
 
-Search for train routes between Ra'anana West and Tel Aviv HaShalom at a specific hour:
+### Find Routes Between Default Stations (Ra'anana West and Tel Aviv HaShalom)
 
-```
-python main.py find_routes_by_hour [HOUR] [--debug=DEBUG]
-```
-
-Example:
-
-```
-python main.py find_routes_by_hour 9
+```bash
+# Find routes at 9:00
+railwaycli find_routes_by_hour 9
 ```
 
-This will display all routes departing at 9:00 AM in both directions:
+### Find Routes Between Custom Stations
 
-- From Ra'anana West to Tel Aviv HaShalom (displayed in green)
-- From Tel Aviv HaShalom to Ra'anana West (displayed in blue)
+```bash
+# Find routes between custom stations at 10:00
+railwaycli find_routes_by_hour 10 "Herzliya" "Tel Aviv University"
 
-### Find Routes Between Any Stations
-
-Search for train routes between any two stations:
-
-```
-python main.py find_routes [ORIGIN] [DESTINATION] [HOUR] [--date=DATE] [--debug=DEBUG]
+# Using named parameters
+railwaycli find_routes_by_hour 15 --origin="Jerusalem Navon" --destination="Beer Sheva Center"
 ```
 
-Example:
+### Find Routes Between Any Stations (Alternative Method)
+
+```bash
+railwaycli find_routes "Tel Aviv HaShalom" "Jerusalem Navon" 10
+```
+
+### Additional Options
+
+- Set a specific date:
+
+  ```bash
+  railwaycli find_routes "Herzliya" "Beer Sheva Center" 8 --date=2025-06-01
+  ```
+
+- Enable debug mode:
+  ```bash
+  railwaycli find_routes "Tel Aviv University" "Haifa Center" 16 --debug=True
+  ```
+
+## Example Output
+
+Here's what the output looks like when searching for routes between Ra'anana West and Tel Aviv HaShalom:
 
 ```
-python main.py find_routes "Tel Aviv HaShalom" "Jerusalem Navon" 10
+╭─────────────────────────────────────────────────────────────────────────────────────────╮
+│ Searching routes for 2025-04-30 at 09:00                                                │
+╰─────────────────────────────────────────────────────────────────────────────────────────╯
+
+╭─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────╮
+│                                                    Routes from Ra'anana West to Tel Aviv HaShalom                                                                │
+├───────────┬───────────┬───────────┬───────────┬───────────┬─────────────────────────────────────────────────────────────────────────────────────────────────────┤
+│ Departure │ Arrival   │ Duration  │ Train #   │ Transfers │ Transfer Details                                                                                     │
+├───────────┼───────────┼───────────┼───────────┼───────────┼─────────────────────────────────────────────────────────────────────────────────────────────────────┤
+│ 09:03     │ 09:22     │ 19m       │ 651       │ Direct    │ -                                                                                                    │
+├───────────┼───────────┼───────────┼───────────┼───────────┼─────────────────────────────────────────────────────────────────────────────────────────────────────┤
+│ 09:33     │ 09:52     │ 19m       │ 653       │ Direct    │ -                                                                                                    │
+╰───────────┴───────────┴───────────┴───────────┴───────────┴─────────────────────────────────────────────────────────────────────────────────────────────────────╯
+
+╭─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────╮
+│                                                    Routes from Tel Aviv HaShalom to Ra'anana West                                                                │
+├───────────┬───────────┬───────────┬───────────┬───────────┬─────────────────────────────────────────────────────────────────────────────────────────────────────┤
+│ Departure │ Arrival   │ Duration  │ Train #   │ Transfers │ Transfer Details                                                                                     │
+├───────────┼───────────┼───────────┼───────────┼───────────┼─────────────────────────────────────────────────────────────────────────────────────────────────────┤
+│ 09:07     │ 09:28     │ 21m       │ 650       │ Direct    │ -                                                                                                    │
+├───────────┼───────────┼───────────┼───────────┼───────────┼─────────────────────────────────────────────────────────────────────────────────────────────────────┤
+│ 09:37     │ 09:58     │ 21m       │ 652       │ Direct    │ -                                                                                                    │
+╰───────────┴───────────┴───────────┴───────────┴───────────┴─────────────────────────────────────────────────────────────────────────────────────────────────────╯
 ```
 
-This will display all routes from Tel Aviv HaShalom to Jerusalem Navon departing at 10:00 AM.
+Here's an example with a transfer:
+
+```
+╭──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────╮
+│                                                      Routes from Jerusalem Navon to Beer Sheva Center                                                                  │
+├───────────┬───────────┬───────────┬───────────┬───────────┬──────────────────────────────────────────────────────────────────────────────────────────────────────────┤
+│ Departure │ Arrival   │ Duration  │ Train #   │ Transfers │ Transfer Details                                                                                          │
+├───────────┼───────────┼───────────┼───────────┼───────────┼──────────────────────────────────────────────────────────────────────────────────────────────────────────┤
+│ 11:34     │ 13:53     │ 2h 19m    │ 724, 961  │ 1         │ Tel Aviv HaHagana: Train 724 → Train 961                                                                  │
+│           │           │           │           │           │   Arrive: 12:44 (platform 4)                                                                               │
+│           │           │           │           │           │   Depart: 12:51 (platform 2)                                                                               │
+│           │           │           │           │           │   Wait: 7m                                                                                                 │
+╰───────────┴───────────┴───────────┴───────────┴───────────┴──────────────────────────────────────────────────────────────────────────────────────────────────────────╯
+```
+
+## Features
+
+- Beautiful, color-coded terminal output with line separations
+- Support for both English and Hebrew station names
+- Station code to name conversion
+- Detailed transfer information including train numbers and platforms
+- Fast querying by hour
+- Error handling and validation
+
+## Dependencies
+
+- fire - Command line interface generation
+- israelrailapi - API client for Israel Railways
+- pytz - Timezone handling
+- rich - Terminal formatting and tables
+
+## License
+
+This project is licensed under the MIT License - see the LICENSE file for details.
 
 ## Display Format
 
@@ -73,24 +189,6 @@ For the first route found, the tool also displays a detailed station-by-station 
 - `date`: Optional date in YYYY-MM-DD format (defaults to current date)
 - `debug`: Whether to show debug information about train and route structures (true/false)
 
-## Features
-
-- Beautiful, color-coded terminal output using the Rich library
-- Flexible search allowing any origin and destination station
-- Station name support in both English and Hebrew
-- Automatic conversion between station codes and names
-- Routes are displayed in organized tables sorted by departure time
-- Journey duration is calculated and displayed in a human-readable format
-- Train numbers are displayed for each route segment
-- Crowding level indicators showing how busy each train is
-- Accessibility information for handicap-accessible trains
-- Detailed transfer information showing where and when to change trains
-- Platform numbers for all stations and transfers
-- Wait time calculation between connecting trains
-- Full route details showing all stations on a journey
-- Debug mode to help investigate API data structures
-- Fast querying by including the hour in the API request
-
 ## Notes
 
 - The tool supports over 20 popular Israel Railways stations with automatic Hebrew translation.
@@ -104,17 +202,17 @@ For the first route found, the tool also displays a detailed station-by-station 
 Search for routes from Herzliya to Beer Sheva at 8:00 AM:
 
 ```
-python main.py find_routes "Herzliya" "Beer Sheva Center" 8
+railwaycli find_routes "Herzliya" "Beer Sheva Center" 8
 ```
 
 Search for routes from Tel Aviv University to Haifa on a specific date:
 
 ```
-python main.py find_routes "Tel Aviv University" "Haifa Center" 16 --date=2025-05-10
+railwaycli find_routes "Tel Aviv University" "Haifa Center" 16 --date=2025-05-10
 ```
 
 View debug information about train objects:
 
 ```
-python main.py find_routes "Jerusalem Navon" "Herzliya" 12 --debug=True
+railwaycli find_routes "Jerusalem Navon" "Herzliya" 12 --debug=True
 ```
